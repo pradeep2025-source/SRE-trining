@@ -148,3 +148,7 @@ echo "    3. Run the kubeadm join <TOKEN> command which we get from master"
 echo "    4. Run 'kubectl get nodes' on the control-plane to see this node joined the cluster."
 echo "------------------------------------------------------------------------------------"
 fi
+# curl -s <git raw url> | sudo bash "master"
+# curl -s <git raw Url> | sudo bash "worker"
+# joint command run in the worker node
+# open the post before run the joint command
