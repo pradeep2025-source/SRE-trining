@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp-service
+spec:
+  selector:
+    app: webapp  # This should match the label of the deployment pod
+  ports:
+    - protocol: TCP
+      port: 80          # Port exposed inside the cluster
+      targetPort: 8080   # Port inside the container (matches your Docker container port)
+  type: NodePort   # Use 'ClusterIP' for internal-only service, 'LoadBalancer' for external access
