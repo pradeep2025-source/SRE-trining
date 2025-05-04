@@ -1,0 +1,7 @@
+app:
+  name: myapp
+  image: nginx:latest
+  port: 80
+  replicas: 5
+  type: NodePort
+
