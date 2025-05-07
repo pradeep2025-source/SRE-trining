@@ -1,0 +1,28 @@
+Part 1: Foundations of DevOps and Cloud Computing - Week 1-2	Date	Trainer Name
+	22/4/2025	
+Introduction to DevOps and CI/CD Concepts		
+What is DevOps?		
+DevOps principles, practices, and culture		
+Agile, Continuous Integration (CI), and Continuous Delivery (CD)		
+The DevOps lifecycle: Plan, Build, Test, Release, Deploy, Monitor, and Operate		
+Assignement: Setup helloworld Simple Jenkins CI-CD on local setup	 	 
+ 	27/4/2025	 
+Containerization with Docker		
+Docker architecture: Docker Engine, Docker Hub, and Docker Compose		
+Building and running Docker containers		
+Assignement: Use Docker to containerize an application and demo	30/4/2025	 
+		
+Kubernets Basics		
+Kubernetes cluster setup (Minikube, EKS, or K8s on AWS)		
+Kubernetes deployments and scaling		
+ConfigMaps, Secrets, and Volumes in Kubernetes		
+Exposing applications with Services (LoadBalancer, NodePort, ClusterIP)		
+Handling rolling updates and rollbacks in Kubernetes		
+Health checks and readiness/liveness probes		
+Integrating Kubernetes with Jenkins for automated deployment		
+"Assignment:
+Setup simple webapp using depolyment, service nodeport / loadbalancer /
+Stretch goal : Use Helm charts
+Stretch goal: Use PVC and DB like Postgres or mongoDB or any DB of your choice"	5/5/2025	
+
+Completed these assignment  
