@@ -1,0 +1,74 @@
+Here’s a simple CloudFormation template to deploy a HelloWorld application using AWS Lambda.
+
+It does the following:
+
+Creates a Lambda function
+
+Uses an inline HelloWorld Python function
+
+Creates an IAM role for Lambda execution
+
+Adds permissions for logging to CloudWatch
+
+
+template.yaml - CloudFormation Lambda HelloWorld Example
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Deploy HelloWorld Lambda Function
+
+Resources:
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: HelloWorldLambdaExecutionRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaLogsPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+
+  HelloWorldFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: HelloWorldFunction
+      Handler: index.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: python3.9
+      Code:
+        ZipFile: |
+          def lambda_handler(event, context):
+              return {
+                  'statusCode': 200,
+                  'body': 'Hello, World from Lambda!'
+              }
+      Timeout: 5
+
+
+Deployment Steps
+Save the above as template.yaml.
+
+Deploy it using the AWS CLI:
+aws cloudformation deploy \
+  --template-file template.yaml \
+  --stack-name HelloWorldLambdaStack \
+  --capabilities CAPABILITY_NAMED_IAM
+
+After deployment, test the function:
+aws lambda invoke \
+  --function-name HelloWorldFunction \
+  --payload '{}' \
+  output.json
+cat output.json
