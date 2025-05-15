@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb
+  labels:
+    app: todo-mongodb
+spec:
+  replicas: {{ .Values.database.mongo.replicas }}
+  selector:
+    matchLabels:
+      app: todo-mongodb
+  serviceName: {{ .Values.database.mongo.serviceName }}
+  template:
+    metadata:
+      name: mongodb
+      labels:
+        app: todo-mongodb
+    spec:
+      volumes:
+      - name: todo-mongo-vol
+        persistentVolumeClaim:
+          claimName: todo-pvc
+      containers:
+      - image: mongo
+        name: mongo
+        command:
+        - mongod
+        - "--bind_ip"
+        - "0.0.0.0"
+        ports:
+        - containerPort: {{ .Values.database.mongo.port }}
+        volumeMounts:
+        - name: todo-mongo-vol
+          mountPath: /data/db
+          
