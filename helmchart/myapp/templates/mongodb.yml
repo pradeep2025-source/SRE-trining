@@ -1,0 +1,63 @@
+{{- if .Values.mongodb.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-mongo-pvc
+spec:
+  accessModes:
+    - {{ .Values.mongodb.persistence.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.mongodb.persistence.size }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-mongodb
+  labels:
+    app: {{ .Release.Name }}
+    component: mongodb
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+      component: mongodb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        component: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: "{{ .Values.mongodb.image.repository }}:{{ .Values.mongodb.image.tag }}"
+        imagePullPolicy: {{ .Values.mongodb.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.mongodb.service.port }}
+        volumeMounts:
+        - name: mongo-storage
+          mountPath: /data/db
+        resources:
+{{ toYaml .Values.mongodb.resources | indent 12 }}
+      volumes:
+      - name: mongo-storage
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-mongo-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-mongodb
+  labels:
+    app: {{ .Release.Name }}
+    component: mongodb
+spec:
+  ports:
+  - port: {{ .Values.mongodb.service.port }}
+    targetPort: {{ .Values.mongodb.service.port }}
+  selector:
+    app: {{ .Release.Name }}
+    component: mongodb
+{{- end }}
