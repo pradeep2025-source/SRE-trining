@@ -1,1 +1,206 @@
+Setting up Prometheus and Grafana on Ubuntu provides a robust monitoring and visualization solution for your infrastructure and applications. Here's a comprehensive guide to get you started:
+
+---
+
+## 🛠️ Step-by-Step Installation Guide
+
+### 1. Install Prometheus
+
+**a. Download and Extract Prometheus:**
+
+```bash
+cd /opt
+wget https://github.com/prometheus/prometheus/releases/latest/download/prometheus-*.linux-amd64.tar.gz
+tar -xvf prometheus-*.linux-amd64.tar.gz
+mv prometheus-*.linux-amd64 prometheus
+```
+
+**b. Configure Prometheus:**
+
+Edit the `prometheus.yml` file to define your scrape targets. For example, to monitor the local machine:
+
+```yaml
+scrape_configs:
+  - job_name: 'node_exporter'
+    static_configs:
+      - targets: ['localhost:9100']
+```
+
+**c. Create a Systemd Service for Prometheus:**
+
+```bash
+sudo nano /etc/systemd/system/prometheus.service
+```
+
+Add the following content:
+
+```ini
+[Unit]
+Description=Prometheus Monitoring
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=root
+ExecStart=/opt/prometheus/prometheus \
+  --config.file=/opt/prometheus/prometheus.yml \
+  --storage.tsdb.path=/opt/prometheus/data
+
+[Install]
+WantedBy=default.target
+```
+
+**d. Start and Enable Prometheus:**
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl start prometheus
+sudo systemctl enable prometheus
+```
+
+Prometheus should now be accessible at [http://localhost:9090](http://localhost:9090).
+
+---
+
+### 2. Install Node Exporter (Optional)
+
+Node Exporter collects hardware and OS metrics exposed by \*nix kernels.
+
+**a. Download and Extract Node Exporter:**
+
+```bash
+cd /opt
+wget https://github.com/prometheus/node_exporter/releases/latest/download/node_exporter-*.linux-amd64.tar.gz
+tar -xvf node_exporter-*.linux-amd64.tar.gz
+mv node_exporter-*.linux-amd64 node_exporter
+```
+
+**b. Create a Systemd Service for Node Exporter:**
+
+```bash
+sudo nano /etc/systemd/system/node_exporter.service
+```
+
+Add the following content:
+
+```ini
+[Unit]
+Description=Node Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=root
+ExecStart=/opt/node_exporter/node_exporter
+
+[Install]
+WantedBy=default.target
+```
+
+**c. Start and Enable Node Exporter:**
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl start node_exporter
+sudo systemctl enable node_exporter
+```
+
+Node Exporter metrics should now be available at [http://localhost:9100/metrics](http://localhost:9100/metrics).
+
+---
+
+### 3. Install Grafana
+
+**a. Add Grafana APT Repository:**
+
+```bash
+sudo apt install -y gnupg2 software-properties-common wget
+wget -q -O - https://packages.grafana.com/gpg.key | sudo gpg --dearmor -o /usr/share/keyrings/grafana.gpg
+echo "deb [signed-by=/usr/share/keyrings/grafana.gpg] https://packages.grafana.com/oss/deb stable main" | sudo tee /etc/apt/sources.list.d/grafana.list
+```
+
+**b. Install Grafana:**
+
+```bash
+sudo apt update
+sudo apt install -y grafana
+```
+
+**c. Start and Enable Grafana:**
+
+```bash
+sudo systemctl start grafana-server
+sudo systemctl enable grafana-server
+```
+
+Grafana should now be accessible at [http://localhost:3000](http://localhost:3000). The default login credentials are:
+
+* **Username:** admin
+* **Password:** admin
+
+You'll be prompted to change the password upon first login.
+
+---
+
+### 4. Configure Prometheus as a Data Source in Grafana
+
+**a. Access Grafana:**
+
+Navigate to [http://localhost:3000](http://localhost:3000) and log in.
+
+**b. Add Prometheus Data Source:**
+
+1. Click on the gear icon (⚙️) in the left sidebar to go to **Configuration**.
+2. Click on **Data Sources**.
+3. Click **Add data source**.
+4. Select **Prometheus**.
+5. In the **HTTP** section, set the URL to `http://localhost:9090`.
+6. Click **Save & Test** to verify the connection.
+
+---
+
+### 5. Create a Dashboard in Grafana
+
+**a. Create a New Dashboard:**
+
+1. Click on the **+** icon in the left sidebar and select **Dashboard**.
+2. Click **Add new panel**.
+
+**b. Configure the Panel:**
+
+1. In the **Query** section, select **Prometheus** as the data source.
+
+2. Enter a PromQL query, for example:
+
+   ```promql
+   node_cpu_seconds_total
+   ```
+
+3. Customize the visualization type (e.g., graph, gauge, table).
+
+4. Click **Apply** to save the panel.
+
+Repeat these steps to add more panels and build comprehensive dashboards.
+
+---
+
+## 📚 Additional Resources
+
+* **Grafana and Prometheus Official Documentation:**
+
+  * [Grafana Docs](https://grafana.com/docs/grafana/latest/getting-started/get-started-grafana-prometheus/)
+  * [Prometheus Docs](https://prometheus.io/docs/visualization/grafana/)
+
+* **Community Tutorials:**
+
+  * [Linode Guide on Installing Prometheus and Grafana](https://www.linode.com/docs/guides/how-to-install-prometheus-and-grafana-on-ubuntu/)
+  * [Medium Article on Setting Up Prometheus and Grafana](https://medium.com/@platform.engineers/setting-up-a-prometheus-and-grafana-monitoring-stack-from-scratch-63667bf3e011)
+
+* **Video Tutorial:**
+
+  * [Grafana Setup & Simple Dashboard (Chart, Gauge, Table)](https://www.youtube.com/watch?v=EGgtJUjky8w)
+
+---
+
+If you need assistance with specific configurations, such as setting up alerts, integrating with other exporters, or deploying in a Kubernetes environment, feel free to ask!
 
