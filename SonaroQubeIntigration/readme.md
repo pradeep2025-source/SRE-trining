@@ -28,7 +28,10 @@ Step #1:Install SonarQube Scanner Plugin in Jenkins
 In Jenkins, you need to install the necessary plugins:
 
 SonarQube Scanner Plugin: This plugin integrates Jenkins with SonarQube. Install it from the Jenkins Plugin Manager.
+
 plugin sonar
+![image](https://github.com/user-attachments/assets/c89e43a9-8eae-4eba-86f2-a6d56471adf1)
+
 Step #2:Configure SonarQube server in Jenkins
 Go to Jenkins > Manage Jenkins > Configure System.
 Scroll down to the SonarQube servers section and click Add SonarQube.
@@ -36,13 +39,19 @@ add server sonar
 Enter a name for the SonarQube server configuration.
 Provide the Server URL where your SonarQube server is running.
 Add the Server Authentication Token. Click on add.
+![image](https://github.com/user-attachments/assets/8d488078-ecc6-4e91-a68c-a5679fe2048a)
+
 sonarqube server 1
 You can generate this token in your SonarQube server under My Account > Security > Token generate token and copy it in another text file for further use like in Jenkins.
 
 generate token
+![image](https://github.com/user-attachments/assets/83ed045f-5ca7-41c3-bdd7-451a013b9bfc)
+
 After that paste token in secret text box and mention ID for used token name.
 
 authentication1
+![image](https://github.com/user-attachments/assets/52f1dc77-a8ae-45d7-b98d-e6172dfb43a9)
+
 Step #3:Create a Jenkins Pipeline to Integrate SonarQube
 Create a New Pipeline Job in Jenkins:
 
@@ -51,6 +60,8 @@ Click on “New Item” in the Jenkins dashboard.
 Choose “Pipeline” and enter a name for your job.
 
 Click “OK” to create the job.
+![image](https://github.com/user-attachments/assets/c5d9a68a-ba1f-49fe-8eb7-52bd2ee13570)
+
 
 create job
 Configure Pipeline Script in Jenkins:
@@ -61,6 +72,8 @@ Choose “Pipeline script from  SCM” as the Definition.
 Select your version control system (Git, SVN, etc.).
 
 Provide the Repository URL and credentials if necessary.
+![image](https://github.com/user-attachments/assets/06381522-e1f5-4ad6-8b62-22ace903258a)
+
 
 pipeline scm
 Specify the path to your Jenkinsfile if it’s not in the repository root.
@@ -93,6 +106,8 @@ Step #5:Run the Jenkins Pipeline
 Save your Jenkinsfile, commit it to your version control system, and then trigger the Jenkins job. The pipeline will automatically fetch your code, build it, analyze it using SonarQube, and enforce quality gates.
 
 You can see Console output:
+![image](https://github.com/user-attachments/assets/2a87990c-79a5-4179-a8f1-a0788404def8)
+
 
 console 1
 console 2
