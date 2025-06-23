@@ -642,8 +642,6 @@ For advanced policy enforcement (e.g., no public S3 buckets, cost limits), Senti
 
 ---
 
-Would you like a sample test file and `tfsec` scan output for a small Terraform project?
-
 
 
 
