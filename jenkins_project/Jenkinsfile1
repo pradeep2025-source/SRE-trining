@@ -1,0 +1,99 @@
+pipeline {
+    agent { label 'scms_build_centos_va' }
+
+    environment {
+        NOCACHE = '1'
+        // Define the ZWORKSPACE variable with the actual path
+        // This should be set to the path where the Jenkins workspace is located 
+        def ZWORKSPACE = '/path/to/zworkspace' // Replace with actual path
+    }
+
+    stages {
+        stage('Code Checkout with checkout') {
+            steps {
+                checkout([$class: 'GitSCM',
+                    branches: [[name: '*/master']],
+                    userRemoteConfigs: [[
+                        url: 'git@github.com:ivantiinc/services-director-sd-core.git',
+                        credentialsId: 'ps-script-github-jenkins-grackle' // Update with actual credentialsId
+                    ]]
+                ])
+            }
+        }
+
+        stage('Clean Workspace and Remove Products Directories') {
+            steps {
+                cleanWs()
+
+                script {
+                    def masterWorkspace = "${env.ZWORKSPACE}/var/lib/jenkins/jobs/${env.JOB_NAME}/workspace/products"
+                    def slaveWorkspace = "${env.ZWORKSPACE}/jenkins_slave_user/localhome/jenkins_slave_user/workspace/${env.JOB_NAME}/products"
+
+                    sh """
+                        if [ -d "${masterWorkspace}" ]; then rm -rf "${masterWorkspace}"; fi
+                        if [ -d "${slaveWorkspace}" ]; then rm -rf "${slaveWorkspace}"; fi
+                    """
+                }
+            }
+        }
+
+        stage('Get Git Commit Short') {
+            steps {
+                script {
+                    env.GIT_COMMIT_SHORT = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                }
+            }
+        }
+
+        stage('Archive Test Files') {
+            steps {
+                sh '''
+                    mkdir -p archive_temp
+                    tar -zcvf archive_temp/test_licenses-${GIT_COMMIT_SHORT}.tgz products/scms/mim/test_licenses/*
+                    tar -zcvf archive_temp/test_certs-${GIT_COMMIT_SHORT}.tgz products/scms/mim/test_certs/*
+                    tar -zcvf archive_temp/linux_scripts-${GIT_COMMIT_SHORT}.tgz products/scms/mim/deployment/scripts/linux/*
+                '''
+            }
+        }
+
+        stage('Run ConfTool') {
+            steps {
+                sh './conftool'
+            }
+        }
+
+        stage('Build Products') {
+            steps {
+                dir('products/scms/mim') {
+                    withEnv(['VABUILD=Y']) {
+                        sh '''
+                            set -ex
+                            make build_tgz build_qa_tgz rpm
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Write buildVars.txt') {
+            steps {
+                sh 'echo "P4_CHANGELIST=${GIT_COMMIT_SHORT}" > buildVars.txt'
+            }
+        }
+    }
+
+    post {
+        success {
+            archiveArtifacts artifacts: '''
+                products/scms/mim/*_Release/**,
+                archive_temp/test_licenses-*.tgz,
+                archive_temp/test_certs-*.tgz,
+                archive_temp/linux_scripts-*.tgz,
+                buildVars.txt
+            '''.stripIndent().trim(), fingerprint: true
+        }
+        failure {
+            echo 'Build failed!'
+        }
+    }
+}
